@@ -31,7 +31,7 @@ st.markdown("""
 st.sidebar.header("Please upload your file!")
 uploaded_file = st.sidebar.file_uploader("", type="txt")
 
-jetengine_api_url = 'https://jetengine-rstitszjmq-ew.a.run.app/upload'
+jetengine_api_url = 'https://jetengine-rstitszjmq-ew.a.run.app/predictLSTM'
 
 # Main area for displaying images
 st.markdown('<h2 class="big-header">Engine Performance Details</h2>', unsafe_allow_html=True)
