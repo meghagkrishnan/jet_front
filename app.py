@@ -158,7 +158,7 @@ if uploaded_file is not None:
         st.image(image_box, use_column_width=True)
 else:
     # Display message when no file is uploaded
-    st.header('Welcome to our App Predicting the Remaining Useful Life of your Engine!')
+    st.header('Welcome to EngineVision!')
     st.subheader('You will soon see your Engine Details here...')
 
 # Add some spacing at the bottom
