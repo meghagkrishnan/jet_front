@@ -1,30 +1,65 @@
 import streamlit as st
 from PIL import Image
 import requests
+import matplotlib.pyplot as plt
 
-# Left-aligned Title of the app with larger font size
+st.set_page_config(layout='wide')
+
+# Styling
 st.markdown("""
     <style>
-        .big-font {
-            font-size: 48px;
-            text-align: left;
-        }
-        .big-header {
-            font-size: 36px;
-        }
         .container {
             display: flex;
-            justify-content: center;
+            align-items: center;
+            height: 100vh; /* Full viewport height */
         }
-        .image-container {
-            margin: 10px;
-            padding: 10px;
+        .column {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start; /* Start at the top */
+            height: 100%; /* Make sure the column fills the available height */
+            padding-top: 100px; /* Add padding at the top */
         }
-        .image {
-            width: 100%; /* Adjust as needed */
+        .status-box {
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 24px;
+            color: black;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .critical {
+            background-color: #ff6666;
+        }
+        .warning {
+            background-color: #ffcc00;
+        }
+        .normal {
+            background-color: #66ff66;
+        }
+        .prediction {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px; /* Add some space below the prediction text */
+        }
+        .prediction-critical {
+            color: #ff6666;
+        }
+        .prediction-warning {
+            color: #ffcc00;
+        }
+        .prediction-normal {
+            color: #66ff66;
+        }
+        .small-header {
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: -5px; /* Reduce space below the header */
+            margin-top: -5px;  /* Reduce space above the header */
         }
     </style>
-    <h1 class="big-font">Prediction of RUL for Jet Engines</h1>
 """, unsafe_allow_html=True)
 
 # Sidebar for file upload
@@ -33,40 +68,98 @@ uploaded_file = st.sidebar.file_uploader("", type="txt")
 
 jetengine_api_url = 'https://jetengine-rstitszjmq-ew.a.run.app/predictLSTM'
 
-# Main area for displaying images
-st.markdown('<h2 class="big-header">Engine Performance Details</h2>', unsafe_allow_html=True)
+# Create columns
+col0, col1, col2, col3 = st.columns([0.1, 2, 0.1, 4])  # Adjust column widths
 
-# Load images
-image1 = Image.open("image1.png")  # Replace with actual image paths
-image2 = Image.open("image2.png")  # Replace with actual image paths
-image3 = Image.open("image3.png")  # Replace with actual image paths
-image4 = Image.open("image4.png")  # Replace with actual image paths
-
-# Display images based on file upload status
+# Display content based on file upload status
 if uploaded_file is not None:
-    # Display images when file is uploaded
-    col1, col2 = st.columns([1, 1.5])  # Adjust column widths
-
     with col1:
-        st.image(image2, use_column_width=True)
-    with col2:
-        st.image(image1, use_column_width=True)
-        st.image(image3, use_column_width=True)
+        # Center content vertically in the column
+        st.markdown('<div class="column">', unsafe_allow_html=True)
 
-    # Process the uploaded file and get prediction
-    files = {'file': uploaded_file}
-    response = requests.post(jetengine_api_url, files=files)
+        # Process the uploaded file and get prediction
+        files = {'file': uploaded_file}
+        response = requests.post(jetengine_api_url, files=files)
 
-    if response.status_code == 200:
-        prediction = response.json()
-        pred = prediction['RUL']
-        st.header(f'The given jet engine has {pred} more cycles before failure')
-    else:
-        st.header('Error in prediction. Please try again.')
+        if response.status_code == 200:
+            prediction = response.json()
+            pred = round(prediction['RUL'])  # Round the RUL to the nearest whole number
+
+            # Determine engine status and prediction color
+            if pred < 30:
+                status = "Critical Engine"
+                status_class = "critical"
+                prediction_class = "prediction-critical"
+                donut_color = "#ff6666"
+                donut_values = [10, 90]  # Red section 10%, remaining 90%
+                image_sensor = "image_sensor_100.png"
+                image_box = "image_box_100.png"
+            elif 30 <= pred <= 60:
+                status = "Warning Engine"
+                status_class = "warning"
+                prediction_class = "prediction-warning"
+                donut_color = "#ffcc00"
+                donut_values = [29, 71]  # Orange section 29%, remaining 71%
+                image_sensor = "image_sensor_3.png"
+                image_box = "image_box_3.png"
+            else:
+                status = "Normal Engine"
+                status_class = "normal"
+                prediction_class = "prediction-normal"
+                donut_color = "#66ff66"
+                donut_values = [62, 38]  # Green section 62%, remaining 38%
+                image_sensor = "image_sensor_99.png"
+                image_box = "image_box_99.png"
+
+            # Display engine status
+            st.markdown(f"""
+                <div class="status-box {status_class}">
+                    {status}
+                </div>
+            """, unsafe_allow_html=True)
+
+            # Display prediction with color
+            st.markdown(f"""
+                <div class="prediction {prediction_class}">
+                    Cycles before Failure: {pred}
+                </div>
+            """, unsafe_allow_html=True)
+
+            # Add a small header above the donut
+            st.markdown(f"""
+                <div class="small-header">
+                    Left Percent:
+                </div>
+            """, unsafe_allow_html=True)
+
+            # Create a smaller donut chart with no background
+            fig, ax = plt.subplots(figsize=(2, 2))  # Smaller size
+            size = 0.3
+            colors = [donut_color, "#dddddd"]
+
+            ax.pie(donut_values, radius=1, colors=colors, wedgeprops=dict(width=size, edgecolor='w'))
+            ax.text(0, 0, f"{donut_values[0]}%", ha='center', va='center', fontsize=16, fontweight='bold', color=donut_color)  # Adjusted font size
+
+            # Remove background
+            fig.patch.set_alpha(0)
+            ax.patch.set_alpha(0)
+
+            st.pyplot(fig)
+
+        else:
+            st.header('Error in prediction. Please try again.')
+
+        # Close the container
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    with col3:
+        # Display images when file is uploaded
+        st.image(image_sensor, use_column_width=True)
+        st.image(image_box, use_column_width=True)
 else:
-    # Display image4 when no file is uploaded
-    st.image(image4, use_column_width=True)
-    st.header('No file uploaded yet.')
+    # Display message when no file is uploaded
+    st.header('Welcome to our App Predicting the Remaining Useful Life of your Engine!')
+    st.subheader('You will soon see your Engine Details here...')
 
 # Add some spacing at the bottom
 st.markdown("<br><br>", unsafe_allow_html=True)
