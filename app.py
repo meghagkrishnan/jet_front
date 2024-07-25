@@ -8,6 +8,9 @@ st.set_page_config(layout='wide')
 # Styling
 st.markdown("""
     <style>
+        sidebar .sidebar-content {
+            background-color: #788FCD !important;
+        }
         .container {
             display: flex;
             align-items: center;
@@ -36,7 +39,7 @@ st.markdown("""
             background-color: #ffcc00;
         }
         .normal {
-            background-color: #66ff66;
+            background-color: #085C37;
         }
         .prediction {
             font-size: 24px;
@@ -50,7 +53,7 @@ st.markdown("""
             color: #ffcc00;
         }
         .prediction-normal {
-            color: #66ff66;
+            color: #085C37;
         }
         .small-header {
             font-size: 16px;
@@ -106,7 +109,7 @@ if uploaded_file is not None:
                 status = "Normal Engine"
                 status_class = "normal"
                 prediction_class = "prediction-normal"
-                donut_color = "#66ff66"
+                donut_color = "#085C37"
                 donut_values = [62, 38]  # Green section 62%, remaining 38%
                 image_sensor = "image_sensor_99.png"
                 image_box = "image_box_99.png"
