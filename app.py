@@ -8,9 +8,11 @@ st.set_page_config(layout='wide')
 # Styling
 st.markdown("""
     <style>
-        sidebar .sidebar-content {
+        /* Sidebar styling */
+        .sidebar .sidebar-content {
             background-color: #788FCD !important;
         }
+        /* Main content styling */
         .container {
             display: flex;
             align-items: center;
@@ -62,6 +64,21 @@ st.markdown("""
             margin-bottom: -5px; /* Reduce space below the header */
             margin-top: -5px;  /* Reduce space above the header */
         }
+        .welcome-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Center align text and image */
+            text-align: center; /* Center align text */
+            margin-left: 20px; /* Adjust margin if needed */
+        }
+        .welcome-text {
+            margin-bottom: 0; /* Remove margin between text and image */
+        }
+        .welcome-image {
+            max-width: 700px; /* Ensure the image is larger */
+            width: 100%;
+            height: auto;
+        }
     </style>
 """, unsafe_allow_html=True)
 
@@ -72,7 +89,7 @@ uploaded_file = st.sidebar.file_uploader("", type="txt")
 jetengine_api_url = 'https://jetengine-rstitszjmq-ew.a.run.app/predictLSTM'
 
 # Create columns
-col0, col1, col2, col3 = st.columns([0.1, 2, 0.1, 4])  # Adjust column widths
+col1, col2 = st.columns([2, 4])  # Adjust column widths after removing the first column
 
 # Display content based on file upload status
 if uploaded_file is not None:
@@ -155,14 +172,22 @@ if uploaded_file is not None:
         # Close the container
         st.markdown('</div>', unsafe_allow_html=True)
 
-    with col3:
+    with col2:
         # Display images when file is uploaded
         st.image(image_sensor, use_column_width=True)
         st.image(image_box, use_column_width=True)
 else:
     # Display message when no file is uploaded
-    st.header('Welcome to EngineVision!')
-    st.subheader('You will soon see your Engine Details here...')
+    st.markdown("""
+        <div class="welcome-container">
+            <h1 class="welcome-text">Welcome to EngineVision!</h1>
+            <h3 class="welcome-text">You will soon see your Engine Details here...</h3>
+        </div>
+    """, unsafe_allow_html=True)
+    # Display the image
+    image_path = "1.png"  # Ensure this is the correct path to your image
+    image = Image.open(image_path)
+    st.image(image, use_column_width=True, output_format='PNG')
 
 # Add some spacing at the bottom
 st.markdown("<br><br>", unsafe_allow_html=True)
